@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-3">{{ subject.name }}
+    <small class="text-muted"> (Semester {{ subject.semester }}) </small>
+</h2>
+
+<hr>
+
+<!-- NOTES -->
+<h4><i class="bi bi-journal-text"></i> Notes</h4>
+<div class="row mb-4">
+    {% for n in notes %}
+    <div class="col-md-4 mb-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ n.title }}</h5>
+                <p class="card-text text-muted small">{{ n.description|default:"No description" }}</p>
+
+                <p class="text-muted small">
+                    {% if n.uploaded_by %}
+                    Uploaded by: {{ n.uploaded_by.get_full_name|default:n.uploaded_by.username }} <br>
+                    {% else %}
+                    Uploaded by: Unknown <br>
+                    {% endif %}
+                    On: {{ n.uploaded_at|date:"M d, Y h:i A" }}
+                </p>
+
+
+                <a href="{{ n.file.url }}" target="_blank" class="btn btn-primary btn-sm">View</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted ms-3">No notes available.</p>
+    {% endfor %}
+</div>
+
+<!-- PYQs -->
+<h4><i class="bi bi-file-earmark"></i> PYQs</h4>
+<div class="row mb-4">
+    {% for q in pyqs %}
+    <div class="col-md-4 mb-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ q.title }}</h5>
+                <p class="card-text text-muted small">{{ q.description|default:"No description" }}</p>
+
+                <p class="text-muted small">
+                    {% if q.uploaded_by %}
+                    Uploaded by: {{ q.uploaded_by.get_full_name|default:q.uploaded_by.username }} <br>
+                    {% else %}
+                    Uploaded by: Unknown <br>
+                    {% endif %}
+                    On: {{ q.uploaded_at|date:"M d, Y h:i A" }}
+                </p>
+
+
+                <a href="{{ q.file.url }}" target="_blank" class="btn btn-success btn-sm">View</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted ms-3">No PYQs available.</p>
+    {% endfor %}
+</div>
+
+<!-- FACULTY NOTES -->
+<h4><i class="bi bi-person-badge"></i> Faculty Notes</h4>
+<div class="row mb-4">
+    {% for f in faculty_notes %}
+    <div class="col-md-4 mb-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ f.title }}</h5>
+
+                <p class="text-muted small">
+                    {% if f.uploaded_by %}
+                    Uploaded by: {{ f.uploaded_by.get_full_name|default:f.uploaded_by.username }} <br>
+                    {% else %}
+                    Uploaded by: Unknown <br>
+                    {% endif %}
+                    On: {{ f.uploaded_at|date:"M d, Y h:i A" }}
+                </p>
+
+
+                <a href="{{ f.file.url }}" target="_blank" class="btn btn-dark btn-sm">View</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted ms-3">No faculty notes uploaded.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}

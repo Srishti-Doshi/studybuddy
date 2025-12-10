@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>My Uploads</h2>
+
+{% for resource in uploads %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h5>{{ resource.title }}</h5>
+        <p class="text-muted">{{ resource.get_resource_type_display }}</p>
+        <p>Status: <strong>{{ resource.status|capfirst }}</strong></p>
+        <a href="{{ resource.file.url }}" target="_blank" class="btn btn-primary btn-sm">View</a>
+        <a href="{% url 'edit_resource' resource.id %}" class="btn btn-warning btn-sm">Edit</a>
+        <a href="{% url 'delete_resource' resource.id %}" class="btn btn-danger btn-sm">Delete</a>
+    </div>
+</div>
+{% empty %}
+<p>No uploads yet.</p>
+{% endfor %}
+
+{% endblock %}
