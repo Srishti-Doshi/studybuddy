@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Pending Uploads</h2>
+
+{% for r in pending %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h5>{{ r.title }}</h5>
+        <p>{{ r.get_resource_type_display }}</p>
+        <p><strong>Uploaded by:</strong> {{ r.uploaded_by.username }}</p>
+
+        <a href="{{ r.file.url }}" target="_blank" class="btn btn-primary btn-sm">View</a>
+        <a href="{% url 'approve_upload' r.id %}" class="btn btn-success btn-sm">Approve</a>
+        <a href="{% url 'reject_upload' r.id %}" class="btn btn-danger btn-sm">Reject</a>
+    </div>
+</div>
+{% empty %}
+<p>No pending uploads.</p>
+{% endfor %}
+
+{% endblock %}

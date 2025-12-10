@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ department.name }}</h2>
+<p>{{ department.description }}</p>
+
+<hr>
+
+<h4>Subjects</h4>
+<div class="row">
+    {% for subject in subjects %}
+        <div class="col-md-4 mb-3">
+            <div class="card hover-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="{% url 'subject_detail' subject.id %}">{{ subject.name }}</a>
+                    </h5>
+                    <p class="text-muted small">Semester {{ subject.semester }}</p>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <p>No subjects added yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+
+        <div class="card shadow p-4 mt-4">
+            <div class="text-center mb-3">
+                <h3 class="fw-bold">Welcome Back</h3>
+                <p class="text-muted">Login to continue</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                    <div class="alert alert-danger py-2">
+                        Invalid username or password.
+                    </div>
+                {% endif %}
+
+                <div class="form-floating mb-3">
+                    <input type="text" name="username" class="form-control" id="floatingUser" placeholder="Username" required>
+                    <label for="floatingUser"><i class="bi bi-person"></i> Username</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Password" required>
+                    <label for="floatingPassword"><i class="bi bi-lock"></i> Password</label>
+                </div>
+
+                <button class="btn btn-primary w-100 py-2">Login</button>
+            </form>
+
+            <p class="text-center mt-3 text-muted">
+                Don't have an account?
+                <a href="{% url 'register' %}">Register</a>
+            </p>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="fw-bold mb-4">Faculty Dashboard</h2>
+
+<!-- ==================== STAT CARDS ==================== -->
+<div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+        <div class="card shadow-sm p-3 text-center">
+            <h6 class="text-muted">Departments</h6>
+            <h2 class="fw-bold">{{ total_departments }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm p-3 text-center">
+            <h6 class="text-muted">Subjects</h6>
+            <h2 class="fw-bold">{{ total_subjects }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm p-3 text-center">
+            <h6 class="text-muted">Resources</h6>
+            <h2 class="fw-bold">{{ total_resources }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm p-3 text-center">
+            <h6 class="text-muted">Pending Review</h6>
+            <h2 class="fw-bold text-danger">{{ pending_resources }}</h2>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- ==================== PENDING UPLOADS ==================== -->
+<h4 class="fw-semibold mt-4 mb-3">Pending Uploads</h4>
+
+{% if pending_list %}
+    {% for r in pending_list %}
+    <div class="card shadow-sm mb-3 p-3">
+        <strong>{{ r.title }}</strong><br>
+        <small class="text-muted">
+            {{ r.get_resource_type_display }} • {{ r.subject.name }}<br>
+            Uploaded by:
+            {% if r.uploaded_by %}
+                {{ r.uploaded_by.get_full_name|default:r.uploaded_by.username }}
+            {% else %}
+                Unknown
+            {% endif %}
+        </small>
+
+        <div class="mt-2">
+            <a href="{{ r.file.url }}" target="_blank" class="btn btn-primary btn-sm">View</a>
+            <a href="{% url 'approve_upload' r.id %}" class="btn btn-success btn-sm">Approve</a>
+            <a href="{% url 'reject_upload' r.id %}" class="btn btn-danger btn-sm">Reject</a>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <p class="text-muted">No pending uploads.</p>
+{% endif %}
+
+
+<!-- ==================== STUDENT LIST ==================== -->
+<hr class="my-4">
+
+<h4 class="fw-semibold mb-3">Registered Students</h4>
+
+<div class="table-responsive">
+    <table class="table table-hover table-bordered shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Uploader Status</th>
+                <th>Approved By</th>
+                <th class="text-center">Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for s in students %}
+            <tr>
+                <td>{{ s.get_full_name|default:s.username }}</td>
+                <td>{{ s.email }}</td>
+
+                <td>
+                    {% if s.uploader_status.is_active %}
+                        <span class="badge bg-success">Approved</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Not Approved</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if s.uploader_status.approved_by %}
+                        {{ s.uploader_status.approved_by.get_full_name|default:s.uploader_status.approved_by.username }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+
+                <td class="text-center">
+
+                    {% if s.uploader_status.is_active %}
+                        <form action="{% url 'revoke_student_uploader' s.id %}" method="POST">
+                            {% csrf_token %}
+                            <button class="btn btn-danger btn-sm">Revoke</button>
+                        </form>
+                    {% else %}
+                        <form action="{% url 'approve_student_uploader' s.id %}" method="POST">
+                            {% csrf_token %}
+                            <button class="btn btn-success btn-sm">Approve</button>
+                        </form>
+                    {% endif %}
+
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+</div>
+
+{% endblock %}

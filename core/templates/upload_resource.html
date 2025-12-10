@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+
+        <div class="card shadow p-4 mt-4">
+            <h3 class="fw-bold mb-2 text-center">
+                <i class="bi bi-upload"></i> Upload Resource
+            </h3>
+            <p class="text-muted text-center mb-4">Share notes, PYQs or faculty materials with your department.</p>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Subject (NO floating label for select) -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-book"></i> Select Subject
+                    </label>
+                    {{ form.subject }}
+
+                    {% if form.subject.errors %}
+                        <div class="text-danger small mt-1">{{ form.subject.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Title (floating label ok) -->
+                <div class="form-floating mb-3">
+                    {{ form.title }}
+                    <label><i class="bi bi-card-text"></i> Title</label>
+                    {% if form.title.errors %}
+                        <div class="text-danger small mt-1">{{ form.title.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Resource Type (select → no floating) -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-list-ul"></i> Resource Type
+                    </label>
+                    {{ form.resource_type }}
+
+                    {% if form.resource_type.errors %}
+                        <div class="text-danger small mt-1">{{ form.resource_type.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- File upload -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-file-earmark-arrow-up"></i> Upload File
+                    </label>
+                    {{ form.file }}
+
+                    {% if form.file.errors %}
+                        <div class="text-danger small mt-1">{{ form.file.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Description (textarea → no floating) -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-pencil-square"></i> Description (Optional)
+                    </label>
+                    {{ form.description }}
+
+                    {% if form.description.errors %}
+                        <div class="text-danger small mt-1">{{ form.description.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Submit -->
+                <button class="btn btn-primary w-100 py-2 fw-semibold">
+                    <i class="bi bi-cloud-arrow-up"></i> Upload Resource
+                </button>
+            </form>
+
+            <div class="text-center mt-3">
+                <a href="{% url 'my_uploads' %}" class="text-decoration-none">
+                    <i class="bi bi-arrow-left"></i> Back to My Uploads
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
