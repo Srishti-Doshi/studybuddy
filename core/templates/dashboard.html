@@ -3,9 +3,8 @@
 
 <h2 class="fw-bold mb-4">Faculty Dashboard</h2>
 
-<!-- ==================== STAT CARDS ==================== -->
+<!-- ================= STATISTICS ================= -->
 <div class="row g-3 mb-4">
-
     <div class="col-md-3">
         <div class="card shadow-sm p-3 text-center">
             <h6 class="text-muted">Departments</h6>
@@ -33,98 +32,311 @@
             <h2 class="fw-bold text-danger">{{ pending_resources }}</h2>
         </div>
     </div>
-
 </div>
 
+<!-- ================= TAB HEADERS ================= -->
+<ul class="nav nav-tabs mb-4" role="tablist">
+    <li class="nav-item">
+        <button id="users-tab-btn" class="nav-link active" data-bs-toggle="tab" data-bs-target="#users-pane"
+            type="button" role="tab" aria-controls="users-pane" aria-selected="true">
+            <i class="bi bi-people"></i> Registered Users
+        </button>
+    </li>
 
-<!-- ==================== PENDING UPLOADS ==================== -->
-<h4 class="fw-semibold mt-4 mb-3">Pending Uploads</h4>
+    <li class="nav-item">
+        <button id="uploaders-tab-btn" class="nav-link" data-bs-toggle="tab" data-bs-target="#uploaders-pane"
+            type="button" role="tab" aria-controls="uploaders-pane" aria-selected="false">
+            <i class="bi bi-person-badge"></i> Approved Uploaders
+        </button>
+    </li>
 
-{% if pending_list %}
-    {% for r in pending_list %}
-    <div class="card shadow-sm mb-3 p-3">
-        <strong>{{ r.title }}</strong><br>
-        <small class="text-muted">
-            {{ r.get_resource_type_display }} • {{ r.subject.name }}<br>
-            Uploaded by:
-            {% if r.uploaded_by %}
-                {{ r.uploaded_by.get_full_name|default:r.uploaded_by.username }}
+    <li class="nav-item">
+        <button id="pending-tab-btn" class="nav-link" data-bs-toggle="tab" data-bs-target="#pending-pane" type="button"
+            role="tab" aria-controls="pending-pane" aria-selected="false">
+            <i class="bi bi-hourglass-split"></i> Pending Uploads
+        </button>
+    </li>
+
+    <li class="nav-item">
+        <button id="faculty-tab-btn" class="nav-link" data-bs-toggle="tab" data-bs-target="#faculty-pane" type="button"
+            role="tab" aria-controls="faculty-pane" aria-selected="false">
+            <i class="bi bi-person-vcard"></i> Faculty Members
+        </button>
+    </li>
+</ul>
+
+<!-- ================= TAB CONTENT ================= -->
+<div class="tab-content">
+
+    <!-- ⭐ TAB 1 — REGISTERED USERS -->
+    <div class="tab-pane fade show active" id="users-pane" role="tabpanel" aria-labelledby="users-tab-btn">
+        <h4 class="fw-bold mb-3"><i class="bi bi-people-fill text-primary"></i> Registered Users</h4>
+
+        <!-- Search + Sort (preserve tab param) -->
+        <form method="GET" class="d-flex gap-2 mb-3">
+            <input type="hidden" name="tab" value="users">
+            <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search users...">
+
+            <select name="sort" class="form-select">
+                <option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Name (A–Z)</option>
+                <option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Name (Z–A)</option>
+                <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option>
+                <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest</option>
+            </select>
+
+            <button class="btn btn-primary"><i class="bi bi-search"></i></button>
+        </form>
+
+        <!-- USERS TABLE -->
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered shadow-sm">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Uploader Status</th>
+                        <th>Approved By</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for s in reg_page_obj %}
+                    <tr>
+                        <td>{{ s.get_full_name|default:s.username }}</td>
+                        <td>{{ s.email }}</td>
+
+                        <td>
+                            {% if s.uploader_status.is_active %}
+                            <span class="badge bg-success">Approved</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Not Approved</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if s.uploader_status.is_active and s.uploader_status.approved_by %}
+                                {{ s.uploader_status.approved_by.get_full_name|default:s.uploader_status.approved_by.username }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td class="text-center">
+                            {% if s.uploader_status.is_active %}
+                            <form method="POST" action="{% url 'revoke_student_uploader' s.id %}">
+                                {% csrf_token %}
+                                <button class="btn btn-danger btn-sm">Revoke</button>
+                            </form>
+                            {% else %}
+                            <form method="POST" action="{% url 'approve_student_uploader' s.id %}">
+                                {% csrf_token %}
+                                <button class="btn btn-success btn-sm">Approve</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PAGINATION (Registered users) -->
+        <div class="d-flex justify-content-between my-3">
+            {% if reg_page_obj.has_previous %}
+            <a class="btn btn-outline-primary btn-sm"
+                href="?page={{ reg_page_obj.previous_page_number }}&q={{ query|urlencode }}&sort={{ sort }}&tab=users">
+                Previous
+            </a>
             {% else %}
-                Unknown
+            <span></span>
             {% endif %}
-        </small>
 
-        <div class="mt-2">
-            <a href="{{ r.file.url }}" target="_blank" class="btn btn-primary btn-sm">View</a>
-            <a href="{% url 'approve_upload' r.id %}" class="btn btn-success btn-sm">Approve</a>
-            <a href="{% url 'reject_upload' r.id %}" class="btn btn-danger btn-sm">Reject</a>
+            <span class="fw-semibold">Page {{ reg_page_obj.number }} of {{ reg_page_obj.paginator.num_pages }}</span>
+
+            {% if reg_page_obj.has_next %}
+            <a class="btn btn-outline-primary btn-sm"
+                href="?page={{ reg_page_obj.next_page_number }}&q={{ query|urlencode }}&sort={{ sort }}&tab=users">
+                Next
+            </a>
+            {% else %}
+            <span></span>
+            {% endif %}
+        </div>
+    </div> <!-- END USERS TAB -->
+
+
+    <!-- ⭐ TAB 2 — APPROVED UPLOADERS -->
+    <div class="tab-pane fade" id="uploaders-pane" role="tabpanel" aria-labelledby="uploaders-tab-btn">
+        <h4 class="fw-bold mb-3"><i class="bi bi-person-check text-primary"></i> Approved Uploaders</h4>
+
+        <div class="card p-3 shadow-sm">
+            {% if approved_students %}
+            <ul class="list-group">
+                {% for u in approved_students %}
+                <li class="list-group-item d-flex justify-content-between">
+                    <div>
+                        <strong>{{ u.student.get_full_name|default:u.student.username }}</strong><br>
+                        <span class="text-muted small">
+                            Approved by:
+                            {% if u.approved_by %}
+                            {{ u.approved_by.get_full_name|default:u.approved_by.username }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </span><br>
+                        <span class="text-muted small">Since: {{ u.created_at|date:"M d, Y" }}</span>
+                    </div>
+
+                    <form method="POST" action="{% url 'revoke_student_uploader' u.student.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-danger btn-sm">Revoke</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-muted">No approved uploaders.</p>
+            {% endif %}
         </div>
     </div>
-    {% endfor %}
-{% else %}
-    <p class="text-muted">No pending uploads.</p>
-{% endif %}
 
 
-<!-- ==================== STUDENT LIST ==================== -->
-<hr class="my-4">
+    <!-- ⭐ TAB 3 — PENDING UPLOADS -->
+    <div class="tab-pane fade" id="pending-pane" role="tabpanel" aria-labelledby="pending-tab-btn">
+        <h4 class="fw-bold mb-3"><i class="bi bi-hourglass-split text-primary"></i> Pending Uploads</h4>
 
-<h4 class="fw-semibold mb-3">Registered Students</h4>
+        {% if pending_list %}
+        {% for r in pending_list %}
+        <div class="card shadow-sm mb-3 p-3">
+            <strong>{{ r.title }}</strong><br>
 
-<div class="table-responsive">
-    <table class="table table-hover table-bordered shadow-sm">
-        <thead class="table-dark">
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Uploader Status</th>
-                <th>Approved By</th>
-                <th class="text-center">Action</th>
-            </tr>
-        </thead>
+            <small class="text-muted">
+                {{ r.subject.name }} • {{ r.get_resource_type_display }}<br>
+                Uploaded by: {% if r.uploaded_by %}{{ r.uploaded_by.get_full_name|default:r.uploaded_by.username }}
+                {% else %}Unknown{% endif %}
+            </small>
 
-        <tbody>
-            {% for s in students %}
-            <tr>
-                <td>{{ s.get_full_name|default:s.username }}</td>
-                <td>{{ s.email }}</td>
+            <div class="mt-2">
+                <a href="{{ r.file.url }}" target="_blank" class="btn btn-primary btn-sm">View</a>
+                <a href="{% url 'approve_upload' r.id %}" class="btn btn-success btn-sm">Approve</a>
+                <a href="{% url 'reject_upload' r.id %}" class="btn btn-danger btn-sm">Reject</a>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p class="text-muted">No pending uploads.</p>
+        {% endif %}
+    </div>
 
-                <td>
-                    {% if s.uploader_status.is_active %}
-                        <span class="badge bg-success">Approved</span>
-                    {% else %}
-                        <span class="badge bg-secondary">Not Approved</span>
+
+    <!-- ⭐ TAB 4 — FACULTY MEMBERS + PROMOTE -->
+    <div class="tab-pane fade" id="faculty-pane" role="tabpanel" aria-labelledby="faculty-tab-btn">
+        <h4 class="fw-bold mb-3"><i class="bi bi-person-vcard text-primary"></i> Faculty Members</h4>
+
+        <div class="card p-3 shadow-sm mb-3">
+            {% if faculty_list %}
+            <ul class="list-group">
+                {% for f in faculty_list %}
+                <li class="list-group-item d-flex justify-content-between">
+                    <div>
+                        <strong>{{ f.get_full_name|default:f.username }}</strong><br>
+                        <span class="text-muted small">{{ f.email }}</span>
+                    </div>
+
+                    {% if user.is_superuser %}
+                    <form method="POST" action="{% url 'remove_faculty' f.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-danger btn-sm">Remove</button>
+                    </form>
                     {% endif %}
-                </td>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-muted">No faculty members found.</p>
+            {% endif %}
+        </div>
 
-                <td>
-                    {% if s.uploader_status.approved_by %}
-                        {{ s.uploader_status.approved_by.get_full_name|default:s.uploader_status.approved_by.username }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
+        {% if user.is_superuser %}
+        <h5 class="fw-semibold mt-3">Promote User to Faculty</h5>
 
-                <td class="text-center">
+        <!-- PROMOTE PAGINATED SEARCH: include tab=faculty hidden -->
+        <form method="GET" class="d-flex gap-2 my-2">
+            <input type="hidden" name="tab" value="faculty">
+            <input type="text" name="pf_q" value="{{ pf_query }}" class="form-control"
+                placeholder="Search users to promote...">
+            <button class="btn btn-primary"><i class="bi bi-search"></i></button>
+        </form>
 
-                    {% if s.uploader_status.is_active %}
-                        <form action="{% url 'revoke_student_uploader' s.id %}" method="POST">
-                            {% csrf_token %}
-                            <button class="btn btn-danger btn-sm">Revoke</button>
-                        </form>
-                    {% else %}
-                        <form action="{% url 'approve_student_uploader' s.id %}" method="POST">
-                            {% csrf_token %}
-                            <button class="btn btn-success btn-sm">Approve</button>
-                        </form>
-                    {% endif %}
+        <div class="card p-3 shadow-sm">
+            <ul class="list-group">
+                {% for s in promote_page_obj %}
+                <li class="list-group-item d-flex justify-content-between">
+                    <div>
+                        <strong>{{ s.get_full_name|default:s.username }}</strong><br>
+                        <span class="text-muted small">{{ s.email }}</span>
+                    </div>
 
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
+                    <form method="POST" action="{% url 'make_faculty' s.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-primary btn-sm">Make Faculty</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
 
-    </table>
+        <!-- PROMOTE PAGINATION (ensure ?tab=faculty included) -->
+        <div class="d-flex justify-content-between my-3">
+            {% if promote_page_obj.has_previous %}
+            <a class="btn btn-outline-primary btn-sm"
+                href="?pf_page={{ promote_page_obj.previous_page_number }}&pf_q={{ pf_query|urlencode }}&tab=faculty">
+                Previous
+            </a>
+            {% else %}
+            <span></span>
+            {% endif %}
+
+            <span class="fw-semibold">Page {{ promote_page_obj.number }} of {{ promote_page_obj.paginator.num_pages }}</span>
+
+            {% if promote_page_obj.has_next %}
+            <a class="btn btn-outline-primary btn-sm"
+                href="?pf_page={{ promote_page_obj.next_page_number }}&pf_q={{ pf_query|urlencode }}&tab=faculty">
+                Next
+            </a>
+            {% else %}
+            <span></span>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
 </div>
+
+<!-- --------------- JS to activate tab from ?tab=... --------------- -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Map tab param values to the nav button ids
+        const tabToBtnId = {
+            "users": "users-tab-btn",
+            "uploaders": "uploaders-tab-btn",
+            "pending": "pending-tab-btn",
+            "faculty": "faculty-tab-btn"
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get("tab");
+
+        // if the tab param exists and matches one of ours, activate it
+        if (tab && tabToBtnId[tab]) {
+            const btn = document.getElementById(tabToBtnId[tab]);
+            if (btn) {
+                // Use bootstrap.Tab to show the tab reliably
+                const tabObj = new bootstrap.Tab(btn);
+                tabObj.show();
+            }
+        }
+    });
+</script>
 
 {% endblock %}

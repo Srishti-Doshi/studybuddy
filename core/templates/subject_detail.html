@@ -3,95 +3,199 @@
 {% block content %}
 
 <h2 class="mb-3">{{ subject.name }}
-    <small class="text-muted"> (Semester {{ subject.semester }}) </small>
+    <!-- <small class="text-muted"> (Semester {{ subject.semester }}) </small> -->
 </h2>
 
 <hr>
 
 <!-- NOTES -->
-<h4><i class="bi bi-journal-text"></i> Notes</h4>
-<div class="row mb-4">
-    {% for n in notes %}
-    <div class="col-md-4 mb-3">
-        <div class="card shadow-sm h-100">
+<div class="mb-4">
+    <h4 class="section-toggle" data-bs-toggle="collapse" href="#notesSection" role="button" aria-expanded="false"
+        aria-controls="notesSection">
+        <i class="bi bi-journal-bookmark-fill text-primary"></i>&nbsp; Notes
+    </h4>
+
+    <div class="collapse" id="notesSection">
+        {% if notes %}
+        {% for note in notes %}
+        <div class="card mb-2">
             <div class="card-body">
-                <h5 class="card-title">{{ n.title }}</h5>
-                <p class="card-text text-muted small">{{ n.description|default:"No description" }}</p>
-
+                <h6>{{ note.title }}</h6>
                 <p class="text-muted small">
-                    {% if n.uploaded_by %}
-                    Uploaded by: {{ n.uploaded_by.get_full_name|default:n.uploaded_by.username }} <br>
-                    {% else %}
-                    Uploaded by: Unknown <br>
-                    {% endif %}
-                    On: {{ n.uploaded_at|date:"M d, Y h:i A" }}
+                    Uploaded by {{ note.uploaded_by.get_full_name|default:note.uploaded_by.username }}
                 </p>
+                <a href="{{ note.file.url }}" class="btn btn-sm btn-primary" target="_blank">View</a>
+
+                <button
+                    class="btn btn-sm bookmark-btn {% if note.id in bookmarked_ids %}btn-warning{% else %}btn-outline-warning{% endif %}"
+                    data-resource-id="{{ note.id }}">
+                    {% if note.id in bookmarked_ids %}
+                        <i class="bi bi-bookmark-star-fill"></i> Bookmarked
+                    {% else %}
+                        <i class="bi bi-bookmark-star"></i> Bookmark
+                    {% endif %}
+                </button>
 
 
-                <a href="{{ n.file.url }}" target="_blank" class="btn btn-primary btn-sm">View</a>
+                {% if user.is_staff or user == note.uploaded_by %}
+                <form method="post" action="{% url 'delete_resource' note.id %}" class="d-inline"
+                    onsubmit="return confirm('Are you sure you want to delete this note?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger ms-2">
+                        Delete
+                    </button>
+                </form>
+                {% endif %}
             </div>
         </div>
+        {% endfor %}
+        {% else %}
+        <p class="text-muted">No notes available.</p>
+        {% endif %}
     </div>
-    {% empty %}
-    <p class="text-muted ms-3">No notes available.</p>
-    {% endfor %}
 </div>
+
 
 <!-- PYQs -->
-<h4><i class="bi bi-file-earmark"></i> PYQs</h4>
-<div class="row mb-4">
-    {% for q in pyqs %}
-    <div class="col-md-4 mb-3">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title">{{ q.title }}</h5>
-                <p class="card-text text-muted small">{{ q.description|default:"No description" }}</p>
+<h4 class="mt-4 section-toggle" role="button" data-bs-toggle="collapse" data-bs-target="#pyqsSection"
+    aria-expanded="false">
+    <i class="bi bi-journal-text text-primary"></i>&nbsp; PYQs
+</h4>
 
-                <p class="text-muted small">
-                    {% if q.uploaded_by %}
-                    Uploaded by: {{ q.uploaded_by.get_full_name|default:q.uploaded_by.username }} <br>
-                    {% else %}
-                    Uploaded by: Unknown <br>
-                    {% endif %}
-                    On: {{ q.uploaded_at|date:"M d, Y h:i A" }}
-                </p>
+<div id="pyqsSection" class="collapse">
+    {% if pyqs %}
+    {% for pyq in pyqs %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6>{{ pyq.title }}</h6>
+            <p class="text-muted small">
+                Uploaded by {{ pyq.uploaded_by }} |
+                {{ pyq.uploaded_at|date:"M d, Y h:i A" }}
+            </p>
+            <a href="{{ pyq.file.url }}" class="btn btn-sm btn-primary" target="_blank">
+                View
+            </a>
 
+            <button
+                class="btn btn-sm bookmark-btn {% if pyq.id in bookmarked_ids %}btn-warning{% else %}btn-outline-warning{% endif %}"
+                data-resource-id="{{ pyq.id }}">
+                {% if pyq.id in bookmarked_ids %}
+                <i class="bi bi-bookmark-star-fill"></i> Bookmarked
+                {% else %}
+                <i class="bi bi-bookmark-star"></i> Bookmark
+                {% endif %}
+            </button>
 
-                <a href="{{ q.file.url }}" target="_blank" class="btn btn-success btn-sm">View</a>
-            </div>
+            {% if user.is_staff or user == pyq.uploaded_by %}
+            <form method="post" action="{% url 'delete_resource' pyq.id %}" class="d-inline"
+                onsubmit="return confirm('Delete this PYQ?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger ms-2">
+                    Delete
+                </button>
+            </form>
+            {% endif %}
+
         </div>
     </div>
-    {% empty %}
-    <p class="text-muted ms-3">No PYQs available.</p>
     {% endfor %}
+    {% else %}
+    <p class="text-muted">No PYQs available.</p>
+    {% endif %}
 </div>
+
 
 <!-- FACULTY NOTES -->
-<h4><i class="bi bi-person-badge"></i> Faculty Notes</h4>
-<div class="row mb-4">
-    {% for f in faculty_notes %}
-    <div class="col-md-4 mb-3">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title">{{ f.title }}</h5>
+<h4 class="mt-4 section-toggle" role="button" data-bs-toggle="collapse" data-bs-target="#facultyNotesSection"
+    aria-expanded="false">
+    <i class="bi bi-mortarboard-fill text-primary"></i>&nbsp; Faculty Notes
+</h4>
 
-                <p class="text-muted small">
-                    {% if f.uploaded_by %}
-                    Uploaded by: {{ f.uploaded_by.get_full_name|default:f.uploaded_by.username }} <br>
-                    {% else %}
-                    Uploaded by: Unknown <br>
-                    {% endif %}
-                    On: {{ f.uploaded_at|date:"M d, Y h:i A" }}
-                </p>
+<div id="facultyNotesSection" class="collapse">
+    {% if faculty_notes %}
+    {% for note in faculty_notes %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6>{{ note.title }}</h6>
+            <p class="text-muted small">
+                Uploaded by {{ note.uploaded_by }} |
+                {{ note.uploaded_at|date:"M d, Y h:i A" }}
+            </p>
+            <a href="{{ note.file.url }}" class="btn btn-sm btn-dark" target="_blank">
+                View
+            </a>
+            <button
+                class="btn btn-sm bookmark-btn {% if note.id in bookmarked_ids %}btn-warning{% else %}btn-outline-warning{% endif %}"
+                data-resource-id="{{ note.id }}">
+                {% if note.id in bookmarked_ids %}
+                <i class="bi bi-bookmark-star-fill"></i> Bookmarked
+                {% else %}
+                <i class="bi bi-bookmark-star"></i> Bookmark
+                {% endif %}
+            </button>
 
 
-                <a href="{{ f.file.url }}" target="_blank" class="btn btn-dark btn-sm">View</a>
-            </div>
+            {% if user.is_staff %}
+            <form method="post" action="{% url 'delete_resource' note.id %}" class="d-inline"
+                onsubmit="return confirm('Delete this faculty note?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger ms-2">
+                    Delete
+                </button>
+            </form>
+            {% endif %}
+
         </div>
     </div>
-    {% empty %}
-    <p class="text-muted ms-3">No faculty notes uploaded.</p>
     {% endfor %}
+    {% else %}
+    <p class="text-muted">No faculty notes uploaded.</p>
+    {% endif %}
 </div>
+
+
+<!-- RECOMMENDED TUTORIALS -->
+<h4 class="mt-4 section-toggle" role="button" data-bs-toggle="collapse" data-bs-target="#tutorialSection"
+    aria-expanded="false">
+    <i class="bi bi-lightbulb text-primary"></i>&nbsp; Learn Better – With Tutorials
+</h4>
+
+<div id="tutorialSection" class="collapse">
+    {% if tutorials %}
+    {% for t in tutorials %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6>{{ t.title }}</h6>
+            {% if t.description %}
+            <p class="text-muted small">{{ t.description }}</p>
+            {% endif %}
+            <a href="{{ t.link }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                Open Tutorial
+            </a>
+
+            {% if user.is_staff or user == t.added_by %}
+            <form method="post" action="{% url 'delete_tutorial' t.id %}" class="d-inline"
+                onsubmit="return confirm('Delete this tutorial recommendation?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger ms-2">
+                    Delete
+                </button>
+            </form>
+            {% endif %}
+
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p class="text-muted">No tutorial recommendations yet.</p>
+    {% endif %}
+</div>
+
+
+{% if user.is_authenticated and user.is_staff or user.is_authenticated and approved_uploader %}
+<a href="{% url 'add_tutorial' subject.id %}" class="btn btn-primary mb-4">
+    <i class="bi bi-plus-circle"></i>&nbsp; Add Tutorial Suggestion
+</a>
+{% endif %}
 
 {% endblock %}

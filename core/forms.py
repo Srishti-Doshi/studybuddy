@@ -3,29 +3,19 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import Resource
+from .models import Resource, TutorialSuggestion
 
 
+# ---------------------- RESOURCE UPLOAD FORM ----------------------
 class ResourceForm(forms.ModelForm):
     class Meta:
         model = Resource
         fields = ['subject', 'title', 'file', 'resource_type', 'description']
         widgets = {
-            'subject': forms.Select(attrs={
-                'class': 'form-control',
-                'placeholder': 'Select subject'
-            }),
-            'title': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter title'
-            }),
-            'resource_type': forms.Select(attrs={
-                'class': 'form-control',
-                'placeholder': 'Select type'
-            }),
-            'file': forms.ClearableFileInput(attrs={
-                'class': 'form-control'
-            }),
+            'subject': forms.Select(attrs={'class': 'form-control'}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter title'}),
+            'resource_type': forms.Select(attrs={'class': 'form-control'}),
+            'file': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
@@ -34,27 +24,23 @@ class ResourceForm(forms.ModelForm):
         }
 
 
+# ---------------------- STUDENT REGISTRATION FORM ----------------------
 class StudentRegistrationForm(UserCreationForm):
-    """
-    Simple registration form for students.
-    Faculty accounts should be created by admin only (is_staff=True).
-    """
 
     first_name = forms.CharField(
         max_length=30,
         required=False,
-        label='First name',
         widget=forms.TextInput(attrs={'placeholder': 'First name'})
     )
+
     last_name = forms.CharField(
         max_length=30,
         required=False,
-        label='Last name',
         widget=forms.TextInput(attrs={'placeholder': 'Last name'})
     )
+
     email = forms.EmailField(
         required=True,
-        label='Email',
         widget=forms.EmailInput(attrs={'placeholder': 'you@example.com'})
     )
 
@@ -64,7 +50,8 @@ class StudentRegistrationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Add Bootstrap form-control styling to all fields
+
+        # bootstrap styling
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
 
@@ -75,21 +62,22 @@ class StudentRegistrationForm(UserCreationForm):
         return email
 
     def save(self, commit=True):
-        """
-        Save the user without staff or superuser flags.
-        """
         user = super().save(commit=False)
+
         user.email = self.cleaned_data.get('email', '')
         user.first_name = self.cleaned_data.get('first_name', '')
         user.last_name = self.cleaned_data.get('last_name', '')
+
         user.is_staff = False
         user.is_superuser = False
 
         if commit:
             user.save()
+
         return user
 
 
+# ---------------------- FACULTY CREATION FORM ----------------------
 class FacultyCreationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
 
@@ -107,8 +95,50 @@ class FacultyCreationForm(forms.ModelForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data['password'])
-        user.is_staff = True       # faculty flag
-        user.is_superuser = False  # make sure faculty cannot become superadmin
+        user.is_staff = True
+        user.is_superuser = False
+
         if commit:
             user.save()
+
         return user
+
+
+# ---------------------- TUTORIAL SUGGESTION FORM ----------------------
+# core/forms.py
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+
+from .models import Resource, TutorialSuggestion
+
+
+class ResourceForm(forms.ModelForm):
+    class Meta:
+        model = Resource
+        fields = ['subject', 'title', 'file', 'resource_type', 'description']
+        widgets = {
+            'subject': forms.Select(attrs={'class': 'form-control'}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'resource_type': forms.Select(attrs={'class': 'form-control'}),
+            'file': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3
+            }),
+        }
+
+
+class TutorialForm(forms.ModelForm):
+    class Meta:
+        model = TutorialSuggestion   # ✅ FIXED
+        fields = ["title", "description", "link"]
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 3
+            }),
+            "link": forms.URLInput(attrs={"class": "form-control"}),
+        }
+

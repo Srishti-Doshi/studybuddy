@@ -1,72 +1,133 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 
 <!-- HERO SECTION -->
 <div class="hero-section text-center p-5 mb-4 rounded-4 shadow-sm">
 
-    <h1 class="fw-bold mb-3" style="color: white;">
+    <h1 class="fw-bold mb-3">
         Welcome to StudyBuddy
     </h1>
-
-
 
     <p class="lead mb-4 fw-semibold hero-subtitle">
         Access notes, previous year questions, and faculty resources — all in one place.
     </p>
 
-    {% if not user.is_authenticated %}
-    <a href="{% url 'register' %}" class="btn btn-warning btn-lg me-2">
-        <i class="bi bi-person-plus"></i> Get Started
-    </a>
-    <a href="{% url 'login' %}" class="btn btn-light btn-lg">
-        <i class="bi bi-box-arrow-in-right"></i> Login
-    </a>
-    {% else %}
-    <a href="#departments-section" class="btn btn-light btn-lg">
-        <i class="bi bi-arrow-down-circle"></i> Explore Departments
-    </a>
-    {% endif %}
-</div>
+    <div class="hero-cta d-flex justify-content-center gap-2">
+        {% if not user.is_authenticated %}
+            <a href="{% url 'register' %}" class="btn btn-warning btn-lg me-2">
+                <i class="bi bi-person-plus"></i> Get Started
+            </a>
+            <a href="{% url 'login' %}" class="btn btn-light btn-lg">
+                <i class="bi bi-box-arrow-in-right"></i> Login
+            </a>
+        {% else %}
+            <a href="#departments-section" class="btn btn-light btn-lg">
+                <i class="bi bi-arrow-down-circle"></i> Explore Departments
+            </a>
+        {% endif %}
+    </div>
 
+</div>
 
 <!-- DEPARTMENTS SECTION -->
 <h2 id="departments-section" class="fw-bold mb-3">Departments</h2>
 <p class="text-muted mb-4">Choose your department to access all subjects and resources.</p>
 
-<div class="row g-4">
+<div class="row g-4 staggered">
 
     {% for d in departments %}
     <div class="col-md-4 col-sm-6">
-        <div class="card shadow-sm h-100 border-0 rounded-3 hover-card" style="transition: 0.2s ease-in-out;">
 
-            <div class="card-body">
-                <h4 class="card-title fw-semibold">
-                    <i class="bi bi-building-check me-2 text-primary"></i>
-                    {{ d.name }}
+        <!-- FULL IMAGE BACKGROUND CARD -->
+        <div class="card dept-card" 
+             style="background-image: url('{% if d.image %}{{ d.image.url }}{% else %}{% static 'img/default-dept.jpg' %}{% endif %}');">
+
+            <!-- DARK GRADIENT + CONTENT -->
+            <div class="dept-overlay">
+                <h4 class="card-title fw-semibold text-white">
+                    <i class="bi bi-building-check me-2"></i>{{ d.name }}
                 </h4>
 
-                <p class="text-muted small">
+                <p class="card-desc">
                     {{ d.description|default:"Explore subjects and study materials." }}
                 </p>
 
-                <a href="{% url 'department_detail' d.id %}" class="btn btn-primary btn-sm mt-2">
+                <a href="{% url 'department_detail' d.id %}" class="btn btn-sm btn-light mt-2">
                     <i class="bi bi-arrow-right-circle"></i> View Subjects
                 </a>
             </div>
 
         </div>
-    </div>
-    {% empty %}
-    <p class="text-muted">No departments added yet.</p>
-    {% endfor %}
 
+    </div>
+    {% endfor %}
 </div>
 
 <style>
-    .hover-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.15);
-    }
+.dept-card {
+    height: 270px;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: transform .25s ease, box-shadow .25s ease;
+
+    min-height: 250px
+}
+
+/* bottom gradient for text */
+.dept-overlay {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(180deg,
+        rgba(0, 0, 0, 0.0) 0%,
+        rgba(0, 0, 0, 0.75) 100%);
+    color: white;
+
+    top: 0;
+    left: 0;
+    height: 100%;
+
+    /* THE MAGIC SAUCE: A vertical gradient */
+    /* Starts slightly dark at top (0.2), becomes very dark at bottom (0.85) */
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.85) 100%);
+    
+    /* Layout settings to push text to bottom and add padding */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 20px;
+}
+
+/* ellipsis for description */
+.card-desc {
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+    overflow: hidden;
+    color: rgba(255,255,255,0.92);
+}
+
+/* hover effect */
+.dept-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 18px 40px rgba(19,29,66,0.22);
+}
+
+/* 3. Ensure description text is also white to match title */
+.dept-overlay .card-desc {
+    color: rgba(255, 255, 255, 0.9); /* Slightly transparent white looks softer */
+    margin-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+    .dept-card { height: 240px; }
+}
 </style>
 
 {% endblock %}

@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container my-5">
+
+    <!-- TITLE -->
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">About B.Tech-Buddy</h1>
+        <p class="text-muted mt-2">
+            A student-first learning platform built with passion <i class="bi bi-heart-fill text-danger"></i>
+        </p>
+    </div>
+
+    <!-- MISSION -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-body">
+            <h4 class="fw-bold mb-3"><i class="bi bi-rocket-takeoff-fill"></i> Our Mission</h4>
+            <p>
+                StudyBuddy is designed to make academic resources easily accessible
+                to students — including notes, faculty material, PYQs, and curated
+                learning tutorials — all in one organized platform.
+            </p>
+            <p>
+                Our goal is to reduce confusion, save time, and help students
+                learn smarter, not harder.
+            </p>
+        </div>
+    </div>
+
+    <!-- FOUNDERS -->
+    <h3 class="fw-bold text-center mb-4">Meet the Creators</h3>
+
+    <div class="row justify-content-center g-4">
+
+        <!-- SRISHTI DOSHI -->
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center p-3 h-100">
+                <img src="{% static 'img/srishti.jpg' %}" class="rounded mb-3 mx-auto"
+                    style="width:240px;height:240px;object-fit:cover;" alt="Srishti">
+
+                <h5 class="fw-bold">Srishti Doshi</h5>
+                <p class="text-muted small">Co-Founder & Developer</p>
+
+                <p class="small">
+                    Passionate about backend development, Python, Django,
+                    and building student-centric platforms.
+                </p>
+
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="https://github.com/Srishti-Doshi" target="_blank" class="text-dark"><i class="bi bi-github"></i></a>
+                    <a href="https://www.linkedin.com/in/srishti-doshi-b61683294/" target="_blank" class="text-primary"><i
+                            class="bi bi-linkedin"></i></a>
+                    <!-- <a href="#" class="text-danger"><i class="bi bi-instagram"></i></a> -->
+                </div>
+            </div>
+        </div>
+
+        <!-- PRINCE MALVIYA -->
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center p-3 h-100">
+                <img src="{% static 'img/prince.jpg' %}" class="rounded mb-3 mx-auto"
+                    style="width:240px;height:240px;object-fit:cover;object-position: top;" alt="Prince">
+
+                <h5 class="fw-bold">Prince Malviya</h5>
+                <p class="text-muted small">Co-Founder & Developer</p>
+
+                <p class="small">
+                    Focused on system design, logic building, and creating
+                    scalable, real-world applications.
+                </p>
+
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="https://github.com/PrinceMalviyaDev" target="_blank" class="text-dark"><i class="bi bi-github"></i></a>
+                    <a href="https://www.linkedin.com/in/prince-malviya-02685a335/" target="_blank" class="text-primary"><i
+                            class="bi bi-linkedin"></i></a>
+                    <a href="#" class="text-danger"><i class="bi bi-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- GUIDE / MENTOR -->
+    <h3 class="fw-bold text-center mt-5 mb-4">Our Mentor</h3>
+
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center p-3 h-100">
+                <img src="{% static 'img/mentor.jpg' %}" class="rounded mb-3 mx-auto"
+                    style="width:240px;height:240px;object-fit:cover;" alt="Mentor">
+
+                <h5 class="fw-bold">Prof. Kapil Bhardwaj</h5>
+                <p class="text-muted small">
+                    Mentor<br>
+                    Professor, Department of Computer Science, SAIT
+                </p>
+
+                <p class="small">
+                    Guided and mentored the development of B.Tech-Buddy,
+                    providing academic insight, structure, and direction
+                    throughout the project.
+                </p>
+
+                <!-- Optional icons -->
+                <div class="d-flex justify-content-center gap-3">
+                    <span class="text-secondary">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </span>
+                    <!-- Uncomment if you have links -->
+                    
+                <a href="https://www.linkedin.com/in/kapil-bhardwaj-39289b398" target="_blank" class="text-primary"><i class="bi bi-linkedin"></i></a>
+                <!--
+                <a href="#" class="text-dark"><i class="bi bi-globe"></i></a>
+                -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- CONTACT -->
+    <div class="card shadow-sm mt-5">
+        <div class="card-body text-center">
+            <h4 class="fw-bold mb-3"><i class="bi bi-envelope-fill"></i> Contact Us</h4>
+            <p class="mb-1">Have feedback, suggestions, or ideas?</p>
+            <p class="text-muted small">We’d love to hear from you.</p>
+
+            <p class="fw-semibold">
+                <i class="bi bi-envelope-arrow-down-fill"></i> Email: srishtidoshi7@gmail.com
+            </p>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

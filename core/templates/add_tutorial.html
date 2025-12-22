@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <h3 class="text-center">
+        ➕ Add Tutorial Recommendation
+    </h3>
+
+    <p class="text-center text-muted">
+        Suggest helpful videos, playlists, articles, blogs, or PDFs related to this subject.
+    </p>
+
+    <div class="card shadow-sm mt-3 mb-5">
+        <div class="card-body">
+
+            <h5 class="mb-3">
+                <i class="bi bi-book"></i> Subject: 
+                <span class="text-primary">{{ subject.name }}</span>
+            </h5>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <!-- TITLE -->
+                <div class="mb-3">
+                    <label class="form-label">Tutorial Title</label>
+                    {{ form.title }}
+                </div>
+
+                <!-- DESCRIPTION -->
+                <div class="mb-3">
+                    <label class="form-label">Short Description (optional)</label>
+                    {{ form.description }}
+                </div>
+
+                <!-- LINK -->
+                <div class="mb-3">
+                    <label class="form-label">Tutorial Link (YouTube, Article, PDF, Website etc.)</label>
+                    {{ form.link }}
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">
+                    ➕ Add Tutorial
+                </button>
+            </form>
+
+            <div class="text-center mt-3">
+                <a href="{% url 'subject_detail' subject.id %}">← Back to Subject</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

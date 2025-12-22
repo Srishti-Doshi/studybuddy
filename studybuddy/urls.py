@@ -1,8 +1,8 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from core.views import register
+from core.views import make_faculty, register, remove_faculty, add_tutorial
 
 
 from core.views import (
@@ -40,6 +40,13 @@ urlpatterns = [
 
     path('create-faculty/', create_faculty, name="create_faculty"),
 
+    path("make-faculty/<int:user_id>/", make_faculty, name="make_faculty"),
+    path("remove-faculty/<int:user_id>/", remove_faculty, name="remove_faculty"),
+
+    path("subject/<int:subject_id>/add_tutorial/", add_tutorial, name="add_tutorial"),
+
+    path('', include('core.urls')),
+    # path('', include('api.urls')),
 
 ]
 
