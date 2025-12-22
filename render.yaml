@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: studybuddy
+    env: python
+    buildCommand: ./build.sh
+    startCommand: gunicorn studybuddy.wsgi:application
