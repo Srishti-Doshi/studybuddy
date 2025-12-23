@@ -12,19 +12,19 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
-
-# SECRET_KEY = 'replace-this-with-your-secret-key'
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = config("SECRET_KEY")
 
 # DEBUG = os.getenv("DEBUG") == "True"
 # DEBUG = True
 DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = config(
-    "ALLOWED_HOSTS",
-    default="127.0.0.1,localhost",
-    cast=lambda v: [s.strip() for s in v.split(",")]
-)
+
+# ALLOWED_HOSTS = config(
+#     "ALLOWED_HOSTS",
+#     default="127.0.0.1,localhost",
+#     cast=lambda v: [s.strip() for s in v.split(",")]
+# )
+ALLOWED_HOSTS = config("ALLOWED_HOSTS").split(",")
 
 
 INSTALLED_APPS = [
@@ -73,15 +73,21 @@ TEMPLATES = [
 WSGI_APPLICATION = 'studybuddy.wsgi.application'
 
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": os.getenv("DB_NAME"),
+#         "USER": os.getenv("DB_USER"),
+#         "PASSWORD": os.getenv("DB_PASSWORD"),
+#         "HOST": os.getenv("DB_HOST", "localhost"),
+#         "PORT": os.getenv("DB_PORT", "5432"),
+#     }
+# }
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME"),
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASSWORD"),
-        "HOST": os.getenv("DB_HOST", "localhost"),
-        "PORT": os.getenv("DB_PORT", "5432"),
-    }
+    "default": dj_database_url.parse(
+        config("DATABASE_URL")
+    )
 }
 
 # Use SQLite for development. On PythonAnywhere you'll switch to PostgreSQL as needed.
