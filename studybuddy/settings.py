@@ -35,10 +35,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'channels',
-    'core.apps.CoreConfig',
-
+    'core.apps.CoreConfig',  # our app
     'api',   # chatgpt
-    'core',  # our app
 ]
 
 MIDDLEWARE = [
@@ -85,11 +83,26 @@ WSGI_APPLICATION = 'studybuddy.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-    "default": dj_database_url.parse(
-        config("DATABASE_URL")
-    )
-}
+
+DATABASE_URL = config("DATABASE_URL", default=None)
+
+if DATABASE_URL:
+    # Production (Render)
+    DATABASES = {
+        "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+    }
+else:
+    # Local PostgreSQL
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config("DB_NAME"),
+            "USER": config("DB_USER"),
+            "PASSWORD": config("DB_PASSWORD"),
+            "HOST": config("DB_HOST"),
+            "PORT": config("DB_PORT"),
+        }
+    }
 
 # Use SQLite for development. On PythonAnywhere you'll switch to PostgreSQL as needed.
 # DATABASES = {
