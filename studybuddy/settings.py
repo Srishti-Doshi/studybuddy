@@ -35,8 +35,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'channels',
+    'core.apps.CoreConfig',
 
-    'api',
+    'api',   # chatgpt
     'core',  # our app
 ]
 
