@@ -6,6 +6,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from django.contrib.messages import constants as messages
 from decouple import config
+import dj_database_url
 # from dj_database_url import parse as db_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
